@@ -19,9 +19,9 @@ import java.util.UUID;
 public class Beer {
 
     @Id //indica che la var sotto e' la PK
-    @GeneratedValue(strategy = GenerationType.UUID) //"cliente". richiede di usare un gen di nome UUID
-    //@GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDgenerator")// e' il gen effettvio, il "fornitore"
-    @Column(length = 36,columnDefinition = "varchar", updatable = false, nullable = false)
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false)
     private UUID id;
 
     @Version //gestisce chiamate concorrenti dando priorita' solo alla prima

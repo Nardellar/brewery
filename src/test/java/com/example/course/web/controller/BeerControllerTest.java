@@ -2,21 +2,33 @@ package com.example.course.web.controller;
 
 import com.example.course.web.model.BeerDto;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.example.course.web.model.BeerStyleEnum.PILSNER;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
+@ExtendWith(RestDocumentationExtension.class)//attivo il supporto di Junit5 oer RestDocs
+@AutoConfigureRestDocs //configurano i MockMvc per l'uso di restDocks
 @WebMvcTest(BeerController.class)
 @ComponentScan(basePackages = "com.example.course.web.mappers")
 class BeerControllerTest {
@@ -29,8 +41,28 @@ class BeerControllerTest {
 
     @Test
     void getBeerById() throws Exception {
-        mockMvc.perform(get("/api/v1/beer/" + UUID.randomUUID()).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/v1/beer/{beerId}",  UUID.randomUUID())
+                        .param("iscold", "yes")
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().isOk())
+                        .andDo(document("v1/beer",
+                                pathParameters( //serve solo per generare documentazione
+                                         parameterWithName("beerId").description("UUID of desired beer to get.")
+                                        ),
+                                        requestParameters(
+                                            parameterWithName("iscold").description("Is Beer Cold Query param")
+                                        ),
+                                        responseFields(
+                                                fieldWithPath("id").description("Id of Beer"),
+                                                fieldWithPath("version").description("Version number"),
+                                                fieldWithPath("createdDate").description("Date Created"),
+                                                fieldWithPath("lastModifiedDate").description("Date Updated"),
+                                                fieldWithPath("beerName").description("Beer Name"),
+                                                fieldWithPath("beerStyle").description("Beer Style"),
+                                                fieldWithPath("upc").description("Beer UPC"),
+                                                fieldWithPath("price").description("Beer Price"),
+                                                fieldWithPath("quantityOnHand").description("Quantity on hand")
+                                        )));
     }
 
     @Test
@@ -41,7 +73,21 @@ class BeerControllerTest {
         mockMvc.perform(post("/api/v1/beer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(beerDtoJson))
-                .andExpect(status().isCreated());
+                        .andExpect(status().isCreated())
+                        .andDo(document("v1/beer",
+                                requestFields(
+                                        fieldWithPath("id").ignored(),
+                                        fieldWithPath("version").ignored(),
+                                        fieldWithPath("createdDate").ignored(),
+                                        fieldWithPath("lastModifiedDate").ignored(),
+                                        fieldWithPath("quantityOnHand").ignored(),
+
+                                        fieldWithPath("beerName").description("Beer Name"),
+                                        fieldWithPath("beerStyle").description("Beer Style"),
+                                        fieldWithPath("upc").description("Beer UPC"),
+                                        fieldWithPath("price").description("Beer Price")
+                                )));
+
     }
 
     @Test
