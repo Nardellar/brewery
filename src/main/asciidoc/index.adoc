@@ -49,5 +49,3 @@ include::{snippets}/v1/beer-new/response-body.adoc[]
 Request Fields
 include::{snippets}/v1/beer-new/request-fields.adoc[]
 
-Response Fields:
-include::{snippets}

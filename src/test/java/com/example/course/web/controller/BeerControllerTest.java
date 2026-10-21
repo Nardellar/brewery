@@ -1,5 +1,8 @@
 package com.example.course.web.controller;
 
+import com.example.course.bootstrap.BeerLoader;
+import com.example.course.domain.Beer;
+import com.example.course.services.BeerService;
 import com.example.course.web.model.BeerDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -7,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -40,11 +44,21 @@ class BeerControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @MockBean
+    BeerService beerService;
+
     @Autowired
     ObjectMapper objectMapper; //convertitore oggetti-json e viceversa
 
     @Test
     void getBeerById() throws Exception {
+        BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(BeerLoader.BEER_2_UPC).price(BigDecimal.valueOf(13.49)).build();
+
+
+        given(beerService.getBeerById(any())).willReturn(beerDto);
+
+
+
         mockMvc.perform(get("/api/v1/beer/{beerId}",  UUID.randomUUID())
                         .param("iscold", "yes")
                         .accept(MediaType.APPLICATION_JSON))
@@ -71,8 +85,10 @@ class BeerControllerTest {
 
     @Test
     void saveNewBeer() throws Exception {
-        BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(18L).price(BigDecimal.valueOf(13.49)).build();
+        BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(BeerLoader.BEER_2_UPC).price(BigDecimal.valueOf(13.49)).build();
         String beerDtoJson = objectMapper.writeValueAsString(beerDto);
+
+        given(beerService.saveNewBeer(any())).willReturn(beerDto);
 
         ConstrainedFields fields = new ConstrainedFields(BeerDto.class);
 
@@ -98,7 +114,7 @@ class BeerControllerTest {
 
     @Test
     void updateBeerById() throws Exception {
-        BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(18L).price(BigDecimal.valueOf(13.49)).build();
+        BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(BeerLoader.BEER_1_UPC).price(BigDecimal.valueOf(13.49)).build();
         String beerDtoJson = objectMapper.writeValueAsString(beerDto);
 
         mockMvc.perform(put("/api/v1/beer/" + UUID.randomUUID().toString())
