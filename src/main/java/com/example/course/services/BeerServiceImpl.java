@@ -22,7 +22,6 @@ public class BeerServiceImpl implements BeerService {
 
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
-    private final DateMapper dateMapper;
 
     @Override
     public BeerDto getBeerById(UUID beerId) {
