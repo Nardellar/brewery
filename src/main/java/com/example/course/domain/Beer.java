@@ -1,9 +1,11 @@
 package com.example.course.domain;
 
+import com.example.course.web.model.BeerStyleEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
@@ -21,6 +23,7 @@ public class Beer {
     @Id //indica che la var sotto e' la PK
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type="org.hibernate.type.UUIDCharType")
     @Column(length = 36, columnDefinition = "varchar", updatable = false, nullable = false)
     private UUID id;
 
@@ -34,7 +37,8 @@ public class Beer {
     @UpdateTimestamp
     private Timestamp lastModifiedDate;
     private String beerName;
-    private String beerStyle;
+    @Enumerated(EnumType.STRING) // Serve per dire a JPA di salvarlo come testo nel DB
+    private BeerStyleEnum beerStyle;
 
     @Column(unique = true)
     private String upc;

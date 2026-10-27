@@ -3,6 +3,7 @@ package com.example.course.web.controller;
 import com.example.course.bootstrap.BeerLoader;
 import com.example.course.domain.Beer;
 import com.example.course.services.BeerService;
+import com.example.course.services.inventory.BeerInventoryService;
 import com.example.course.web.model.BeerDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,19 +21,22 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.util.StringUtils;
 
+import static com.example.course.bootstrap.BeerLoader.BEER_1_UUID;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.example.course.web.model.BeerStyleEnum.PILSNER;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 //import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.restdocs.snippet.Attributes.key;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(RestDocumentationExtension.class)//attivo il supporto di Junit5 oer RestDocs
@@ -47,6 +51,9 @@ class BeerControllerTest {
     @MockBean
     BeerService beerService;
 
+    @MockBean
+    BeerInventoryService beerInventoryService;
+
     @Autowired
     ObjectMapper objectMapper; //convertitore oggetti-json e viceversa
 
@@ -55,12 +62,12 @@ class BeerControllerTest {
         BeerDto beerDto = BeerDto.builder().beerName("ciaone").beerStyle(PILSNER).upc(BeerLoader.BEER_2_UPC).price(BigDecimal.valueOf(13.49)).build();
 
 
-        given(beerService.getBeerById(any())).willReturn(beerDto);
+        given(beerService.getBeerById(any(UUID.class), eq(false))).willReturn(beerDto);
 
 
 
         mockMvc.perform(get("/api/v1/beer/{beerId}",  UUID.randomUUID())
-                        .param("iscold", "yes")
+                        .param("iscold", "yes").param("showInventoryOnHand", "false")
                         .accept(MediaType.APPLICATION_JSON))
                         .andExpect(status().isOk())
                         .andDo(document("v1/beer-get",
@@ -68,7 +75,8 @@ class BeerControllerTest {
                                          parameterWithName("beerId").description("UUID of desired beer to get.")
                                         ),
                                         requestParameters(
-                                            parameterWithName("iscold").description("Is Beer Cold Query param")
+                                            parameterWithName("iscold").description("Is Beer Cold Query param"),
+                                                parameterWithName("showInventoryOnHand").description("Is Inventory On Hand Query param")
                                         ),
                                         responseFields(
                                                 fieldWithPath("id").description("Id of Beer"),
@@ -137,5 +145,27 @@ class BeerControllerTest {
                             .descriptionsForProperty(path), ". ")));
         }
     }
+
+
+//    @Test
+//    void decorateBeerDtoWithInventory() throws Exception {
+//        mockMvc.perform(get("/api/v1/beer")
+//                        .param("beerName", "marione")
+//                        .param("showInventoryOnHand", "true")
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.content[0].beerName").value("marione"))
+//                .andExpect(jsonPath("$.content[0].quantityOnHand").value(50));
+//    }
+//
+//    @Test
+//    void beerDtoWithoutInventory() throws Exception {
+//        mockMvc.perform(get("/api/v1/beer")
+//                        .param("showInventoryOnHand", "false")
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.content[0].beerName").value("marione"))
+//                .andExpect(jsonPath("$.content[0].quantityOnHand").doesNotExist());
+//    }
 
 }

@@ -2,6 +2,7 @@ package com.example.course.bootstrap;
 
 import com.example.course.domain.Beer;
 import com.example.course.repositories.BeerRepository;
+import com.example.course.web.model.BeerStyleEnum;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ public class BeerLoader implements CommandLineRunner {
     public static final UUID BEER_2_UUID = UUID.fromString("a712d914-61ea-4623-8bd0-32c0f6545bfd");
     public static final UUID BEER_3_UUID = UUID.fromString("026cc3c8-3a0c-4083-a05b-e908048c1b08");
 
+
     private final BeerRepository beerRepository;
 
 
@@ -34,7 +36,7 @@ public class BeerLoader implements CommandLineRunner {
         if(beerRepository.count() == 0){
             beerRepository.save(Beer.builder()
                     .beerName("Mangone")
-                    .beerStyle("IPA")
+                    .beerStyle(BeerStyleEnum.IPA)
                     .upc(BEER_1_UPC)
                     .price(BigDecimal.valueOf(12.95))
                     .minOnHand(12)
@@ -44,7 +46,7 @@ public class BeerLoader implements CommandLineRunner {
 
             beerRepository.save(Beer.builder()
                     .beerName("Galdeon")
-                    .beerStyle("GOSE")
+                    .beerStyle(BeerStyleEnum.GOSE)
                     .upc(BEER_2_UPC)
                     .price(BigDecimal.valueOf(16.95))
                     .minOnHand(12)
@@ -53,7 +55,7 @@ public class BeerLoader implements CommandLineRunner {
 
             beerRepository.save(Beer.builder()
                     .beerName("astreus")
-                    .beerStyle("GOSE")
+                    .beerStyle(BeerStyleEnum.GOSE)
                     .upc(BEER_3_UPC)
                     .price(BigDecimal.valueOf(23.00))
                     .minOnHand(16)
