@@ -10,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.UUID;
  */
 @Slf4j
 //@ConfigurationProperties(prefix = "sfg.brewery", ignoreUnknownFields = false)
-@Component
+@Service
 public class BeerInventoryServiceRestTemplateImpl implements BeerInventoryService {
 
     private final String INVENTORY_PATH = "/api/v1/beer/{beerId}/inventory";
